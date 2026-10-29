@@ -269,9 +269,12 @@
   .cancel-banner { margin-top:12px; padding:10px 12px; border-radius:12px; background:var(--goldSoft); color:var(--goldText); font-weight:600; font-size:14px; border:1px solid var(--goldLine); }
   .cancel-banner div { font-weight:400; margin-top:2px; }
   .link.soft { color:var(--brand); }
+  .viewer { position:fixed; inset:0; background:rgba(30,10,20,.55); z-index:20; display:flex; flex-direction:column; padding:12px; }
+  .viewer-bar { display:flex; align-items:center; justify-content:space-between; background:var(--surface); border-radius:14px 14px 0 0; padding:8px 8px 8px 16px; border-bottom:2px solid var(--gold); color:var(--text); }
+  .viewer iframe { flex:1; width:100%; border:0; background:#fff; border-radius:0 0 14px 14px; }
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script src="config.js?v=9"></script>
+<script src="config.js?v=10"></script>
 </head>
 <body>
 <header class="hero">
@@ -494,6 +497,10 @@
     <span class="credit-rule"></span>
     <div id="creditText"></div>
   </footer>
+  <div class="viewer" id="viewer" hidden>
+    <div class="viewer-bar"><b>ใบลาตามแบบฟอร์ม</b><button class="back" id="viewerClose" aria-label="ปิด">✕</button></div>
+    <iframe id="viewerFrame" title="ใบลา"></iframe>
+  </div>
 </main>
 <script>
 (function () {
@@ -793,6 +800,7 @@
           (l.waitingFor ? ' · รอ ' + esc(l.waitingFor) : '') + '</span>' +
         (l.cancelStatus === 'ไม่อนุญาต' ? '<div class="d" style="margin-top:6px">คำขอยกเลิกครั้งล่าสุดไม่ได้รับอนุญาต</div>' : '') +
         (l.lastComment ? '<div class="d" style="margin-top:6px">ความเห็น: ' + esc(l.lastComment) + '</div>' : '') +
+        '<div><button class="link soft" data-view="' + esc(l.id) + '">ดูใบลา</button></div>' +
         (l.canWithdraw ? '<div><button class="link" data-withdraw="' + esc(l.id) + '">ถอนใบลานี้</button></div>' : '') +
         (l.canRequestCancel ? '<div><button class="link" data-askcancel="' + esc(l.id) + '">ขอยกเลิกวันลา</button></div>' +
           '<div class="cancel-form" data-for="' + esc(l.id) + '" hidden>' +
@@ -856,6 +864,7 @@
         '<dt>ขั้นของคุณ</dt><dd>' + esc(c.stepTitle) + (c.acting ? ' (รักษาราชการแทน)' : '') + '</dd></dl>' +
         (c.warnings ? '<ul class="flist"><li class="warning"><b>!</b><span>' + esc(c.warnings) + '</span></li></ul>' : '') +
         (hist ? '<div style="margin-top:10px">' + hist + '</div>' : '') +
+        '<div><button class="link soft" data-view="' + esc(c.id) + '">ดูใบลาตามแบบฟอร์ม</button></div>' +
         '<textarea class="cm" placeholder="ความเห็น (ไม่อนุญาตหรือส่งกลับ ต้องระบุเหตุผล)" style="margin-top:12px;min-height:56px"></textarea>' +
         '<div class="acts">' + acts + '</div></div>';
     }).join('') : '<div class="card empty">ไม่มีใบลารอพิจารณา 🎉</div>';
@@ -914,6 +923,23 @@
   $('holPrev').addEventListener('click', function () { shiftMonth(-1); });
   $('holNext').addEventListener('click', function () { shiftMonth(1); });
 
+  // ---------- ดูใบลาตามแบบฟอร์ม ----------
+  document.addEventListener('click', function (e) {
+    var v = e.target.closest('[data-view]');
+    if (!v) return;
+    v.disabled = true;
+    api('leaveView', { leaveId: v.getAttribute('data-view') })
+      .then(function (r) {
+        // ย่อหน้ากระดาษ A4 ให้พอดีจอมือถือ
+        var fit = '<style>html{background:#fff}body{zoom:' + Math.min(1, (window.innerWidth - 24) / 680).toFixed(2) + ';padding:12px}</style>';
+        $('viewerFrame').srcdoc = r.html.replace('</head>', fit + '</head>');
+        $('viewer').hidden = false;
+      })
+      .catch(function (er) { toast(er.message); })
+      .then(function () { v.disabled = false; });
+  });
+  $('viewerClose').addEventListener('click', function () { $('viewer').hidden = true; $('viewerFrame').srcdoc = ''; });
+
   // ข้อมูลสมมติสำหรับดูหน้าจอ (?preview=...) ไม่เรียกระบบจริง
   function demoApi(action) {
     var D = {
@@ -928,7 +954,7 @@
       inbox: { items: [{ id: 'L2570-0013', applicant: 'นางสาวตัวอย่าง ใจดี', position: 'เจ้าพนักงานธุรการชำนาญงาน', unit: 'กองการเจ้าหน้าที่', type: 'personal', typeName: 'ลากิจส่วนตัว', start: '2026-11-05', end: '2026-11-06', days: 2, reason: 'ไปทำธุระที่อำเภอ', statsThisYear: { sick: 1, personal: 0, vacation: 3 }, history: [], myRole: 'approve', stepTitle: 'ผู้อำนวยการกองการเจ้าหน้าที่' },
         { id: 'L2570-0009', applicant: 'นายตัวอย่าง มีสุข', position: 'นักจัดการงานทั่วไป', unit: 'กองการเจ้าหน้าที่', type: 'vacation', typeName: 'ลาพักผ่อน', start: '2026-11-23', end: '2026-11-27', days: 5, statsThisYear: { sick: 0, personal: 1, vacation: 5 }, history: [{ title: 'ผู้อำนวยการกองการเจ้าหน้าที่', result: 'อนุญาต', who: 'นางตัวอย่าง ผู้อำนวยการ' }], myRole: 'cancel', stepTitle: 'ผู้อำนวยการกองการเจ้าหน้าที่', cancelFrom: '2026-11-26', cancelWhole: false, cancelReason: 'มีงานประชุมสภา' }] },
       leaveSubmit: { id: 'L2570-0014', days: 3, approver: 'ผู้อำนวยการกองการเจ้าหน้าที่', hrReview: false },
-      decide: { result: 'อนุญาต' }, cancelLeave: {}, requestCancel: {}, leaveDefaults: defaults
+      decide: { result: 'อนุญาต' }, cancelLeave: {}, requestCancel: {}, leaveView: { html: '<!doctype html><html><head></head><body style="font-family:sans-serif"><h3 style="text-align:center;text-decoration:underline">แบบใบลาป่วย ลาคลอดบุตร ลากิจส่วนตัว</h3><p>(ตัวอย่างหน้าจอ)</p></body></html>' }, leaveDefaults: defaults
     };
     return Promise.resolve(D[action] || {});
   }
