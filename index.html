@@ -114,9 +114,83 @@
 
   .foot { text-align:center; color:var(--muted); font-size:12.5px; margin-top:22px; }
   .foot a { color:var(--muted); }
+
+  /* หัวหน้าย่อย */
+  .subhead { display:flex; align-items:center; gap:10px; margin:0 0 12px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:8px 12px 8px 8px; box-shadow:var(--shadow); }
+  .back { width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:var(--surface); display:grid; place-items:center; color:var(--text); flex:none; font-size:24px; line-height:1; }
+  .subhead h2 { margin:0; }
+  .tile { cursor:pointer; }
+  .tile.wide { grid-column:1 / -1; min-height:auto; flex-direction:row; align-items:center; }
+  .badge-n { position:absolute; top:12px; right:12px; min-width:22px; height:22px; padding:0 7px; border-radius:999px; background:var(--red); color:#fff; font-size:12px; font-weight:700; display:grid; place-items:center; }
+  .c-red { background:var(--redSoft); color:var(--red); }
+
+  /* ฟอร์มยื่นลา */
+  .seg { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .seg button { padding:12px 6px; border-radius:14px; border:1.5px solid var(--line); background:var(--surface2); color:var(--text); font:inherit; font-weight:600; font-size:14.5px; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .seg button svg { opacity:.8; }
+  .seg button.on { border-color:var(--brand); background:var(--brandSoft); color:var(--brand); }
+  .row2 { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
+  .row2 > div { min-width:0; }
+  input[type=date] { width:100%; min-width:0; max-width:100%; padding:11px 8px; font-size:15px !important; border:1px solid var(--line); border-radius:12px; background:var(--surface2); color:var(--text); font:inherit; min-height:46px; }
+  textarea { width:100%; padding:12px; border:1px solid var(--line); border-radius:12px; background:var(--surface2); color:var(--text); font:inherit; resize:vertical; min-height:70px; }
+  input[type=tel] { width:100%; padding:12px; border:1px solid var(--line); border-radius:12px; background:var(--surface2); color:var(--text); font:inherit; }
+  .pills { display:flex; gap:8px; flex-wrap:wrap; }
+  .pills label { flex:1; min-width:90px; }
+  .pills input { display:none; }
+  .pills span { display:block; text-align:center; padding:9px 8px; border-radius:12px; border:1.5px solid var(--line); background:var(--surface2); font-size:14px; font-weight:500; }
+  .pills input:checked + span { border-color:var(--brand); background:var(--brandSoft); color:var(--brand); font-weight:600; }
+  .datesum { margin-top:8px; font-size:13.5px; color:var(--muted); }
+
+  .summary { display:flex; align-items:baseline; gap:8px; }
+  .summary .n { font-size:34px; font-weight:700; color:var(--brand); line-height:1; }
+  .flist { list-style:none; padding:0; margin:12px 0 0; display:grid; gap:8px; }
+  .flist li { display:flex; gap:8px; align-items:flex-start; font-size:14px; padding:9px 11px; border-radius:12px; }
+  .flist li.error { background:var(--redSoft); color:var(--red); }
+  .flist li.warning { background:var(--amberSoft); color:var(--amber); }
+  .flist li.info { background:var(--surface2); color:var(--text); }
+  .flist li b { flex:none; width:16px; text-align:center; }
+  .route { list-style:none; margin:10px 0 0; padding:0; }
+  .route li { position:relative; padding:0 0 14px 26px; font-size:14px; }
+  .route li::before { content:''; position:absolute; left:7px; top:20px; bottom:0; width:2px; background:var(--line); }
+  .route li:last-child::before { display:none; }
+  .route li i { position:absolute; left:0; top:4px; width:16px; height:16px; border-radius:50%; background:var(--surface2); border:2px solid var(--line); }
+  .route li.approve i { background:var(--brand); border-color:var(--brand); }
+  .route li.hr i { background:var(--blueSoft); border-color:var(--blue); }
+  .route li.skipped { color:var(--muted); text-decoration:line-through; }
+  .route .r { font-weight:600; } .route .w { color:var(--muted); font-size:13px; }
+
+  /* วันลาของฉัน */
+  .stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .stat { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:14px; box-shadow:var(--shadow); }
+  .stat .k { font-size:12.5px; color:var(--muted); }
+  .stat .v { font-size:24px; font-weight:700; line-height:1.2; margin-top:2px; }
+  .stat .v small { font-size:13px; font-weight:500; color:var(--muted); }
+  .stat.full { grid-column:1 / -1; }
+  .meter { height:8px; background:var(--surface2); border-radius:999px; overflow:hidden; margin-top:8px; border:1px solid var(--line); }
+  .meter b { display:block; height:100%; background:var(--brand); border-radius:999px; }
+  .meter.warn b { background:var(--amber); } .meter.bad b { background:var(--red); }
+  .litem { display:flex; gap:12px; align-items:flex-start; }
+  .litem .ic { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; flex:none; font-size:18px; }
+  .litem .t { font-weight:600; }
+  .litem .d { font-size:13.5px; color:var(--muted); }
+  .st { display:inline-block; font-size:12px; font-weight:600; padding:2px 9px; border-radius:999px; margin-top:6px; }
+  .st.pending { background:var(--amberSoft); color:var(--amber); }
+  .st.approved { background:var(--brandSoft); color:var(--brand); }
+  .st.rejected, .st.returned { background:var(--redSoft); color:var(--red); }
+  .st.cancelled { background:var(--surface2); color:var(--muted); }
+  .link { background:none; border:0; color:var(--red); font:inherit; font-size:13.5px; padding:0; margin-top:6px; text-decoration:underline; }
+  .empty { text-align:center; color:var(--muted); padding:28px 10px; font-size:14px; }
+
+  /* รอพิจารณา */
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:14px; margin:12px 0 0; }
+  .kv dt { color:var(--muted); } .kv dd { margin:0; }
+  .acts { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+  .acts .btn { margin-top:0; }
+  .btn.danger { background:var(--red); }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--text); color:var(--bg); padding:10px 16px; border-radius:12px; font-size:14px; z-index:9; max-width:90%; }
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script src="config.js?v=3"></script>
+<script src="config.js?v=4"></script>
 </head>
 <body>
 <header class="hero">
@@ -228,28 +302,103 @@
 
     <div class="section-title">เมนู</div>
     <div class="grid">
-      <button class="tile soon" disabled>
-        <span class="soon-tag">เร็ว ๆ นี้</span>
+      <button class="tile" data-go="form">
         <span class="ic c-green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6M9 15h6"/></svg></span>
         <span class="t">ยื่นลา</span><span class="s">ป่วย · กิจ · พักผ่อน</span>
       </button>
-      <button class="tile soon" disabled>
-        <span class="soon-tag">เร็ว ๆ นี้</span>
+      <button class="tile" data-go="mine">
         <span class="ic c-blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M8 14h3M8 17h6"/></svg></span>
-        <span class="t">วันลาของฉัน</span><span class="s">คงเหลือ · ประวัติ</span>
+        <span class="t">วันลาของฉัน</span><span class="s">คงเหลือ · สถานะใบลา</span>
       </button>
-      <button class="tile soon" disabled>
-        <span class="soon-tag">เร็ว ๆ นี้</span>
-        <span class="ic c-amber"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
-        <span class="t">สถานะใบลา</span><span class="s">ติดตามการอนุมัติ</span>
-      </button>
-      <button class="tile soon" disabled>
-        <span class="soon-tag">เร็ว ๆ นี้</span>
+      <button class="tile wide" data-go="inbox" id="tileInbox" hidden>
         <span class="ic c-violet"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg></span>
-        <span class="t">รออนุมัติ</span><span class="s">สำหรับผู้บังคับบัญชา</span>
+        <span><span class="t" style="display:block">ใบลารอพิจารณา</span><span class="s" style="display:block;margin-top:0">สำหรับผู้บังคับบัญชาและงานบุคคล</span></span>
+        <span class="badge-n" id="inboxCount" hidden></span>
       </button>
     </div>
     <p class="foot" id="foot"></p>
+  </section>
+
+  <!-- ยื่นลา -->
+  <section id="v-form" hidden>
+    <div class="subhead"><button class="back" data-go="home" aria-label="กลับ">‹</button><h2>ยื่นใบลา</h2></div>
+    <div class="card">
+      <label class="f" style="margin-top:0">ประเภทการลา</label>
+      <div class="seg" id="typeSeg">
+        <button data-type="sick"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>ลาป่วย</button>
+        <button data-type="personal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>ลากิจส่วนตัว</button>
+        <button data-type="vacation"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M12 2v1M12 13v1M6 8H5M19 8h-1M4 21h16M7 21l5-7 5 7"/></svg>ลาพักผ่อน</button>
+      </div>
+
+      <div class="row2">
+        <div><label class="f" for="fStart">ตั้งแต่วันที่</label><input type="date" id="fStart"></div>
+        <div><label class="f" for="fEnd">ถึงวันที่</label><input type="date" id="fEnd"></div>
+      </div>
+      <div class="datesum" id="dateSum"></div>
+
+      <div id="halfSingle">
+        <label class="f">ช่วงเวลา</label>
+        <div class="pills">
+          <label><input type="radio" name="half" value="" checked><span>เต็มวัน</span></label>
+          <label><input type="radio" name="half" value="morning"><span>ครึ่งเช้า</span></label>
+          <label><input type="radio" name="half" value="afternoon"><span>ครึ่งบ่าย</span></label>
+        </div>
+      </div>
+      <div id="halfMulti" hidden>
+        <label class="check"><input type="checkbox" id="fFirstPm"> วันแรกลาเฉพาะช่วงบ่าย</label>
+        <label class="check" style="margin-top:8px"><input type="checkbox" id="fLastAm"> วันสุดท้ายลาเฉพาะช่วงเช้า</label>
+      </div>
+
+      <div id="reasonBox">
+        <label class="f" for="fReason">เนื่องจาก</label>
+        <textarea id="fReason" maxlength="300" placeholder="เหตุผลโดยย่อ"></textarea>
+        <p class="hint" id="reasonHint"></p>
+      </div>
+      <label class="check" id="emergencyBox" hidden><input type="checkbox" id="fEmergency"> จำเป็นต้องหยุดไปก่อน แล้วจึงยื่นใบลา (ต้องระบุเหตุผล)</label>
+      <label class="check" id="certBox" hidden><input type="checkbox" id="fCert"> มีใบรับรองแพทย์ และจะส่งให้งานบุคคล</label>
+      <label class="check"><input type="checkbox" id="fAbroad"> เดินทางไปต่างประเทศระหว่างลา</label>
+
+      <label class="f" for="fContact">ระหว่างลาติดต่อได้ที่</label>
+      <textarea id="fContact" maxlength="300" placeholder="ที่อยู่ระหว่างลา" style="min-height:56px"></textarea>
+      <label class="f" for="fPhone">หมายเลขโทรศัพท์</label>
+      <input type="tel" id="fPhone" maxlength="20" placeholder="08x-xxx-xxxx">
+    </div>
+
+    <div class="card" id="checkCard" hidden>
+      <div class="summary"><span class="n" id="sumDays">0</span><span>วันทำการ</span></div>
+      <ul class="flist" id="sumFindings"></ul>
+      <label class="f">ใบลาจะส่งถึง</label>
+      <ul class="route" id="sumRoute"></ul>
+    </div>
+    <div id="formMsg" class="msg bad" hidden></div>
+    <button class="btn" id="btnSubmit" disabled>ยื่นใบลา</button>
+  </section>
+
+  <!-- ยื่นสำเร็จ -->
+  <section id="v-done" hidden>
+    <div class="card" style="text-align:center;padding:28px 18px">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--brandSoft);color:var(--brand);display:grid;place-items:center;margin:0 auto 12px">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+      </div>
+      <h2>ยื่นใบลาแล้ว</h2>
+      <p class="lead" id="doneText" style="margin:6px 0 0"></p>
+      <button class="btn" data-go="mine">ดูสถานะใบลา</button>
+      <button class="btn ghost" data-go="home">กลับหน้าหลัก</button>
+    </div>
+  </section>
+
+  <!-- วันลาของฉัน -->
+  <section id="v-mine" hidden>
+    <div class="subhead"><button class="back" data-go="home" aria-label="กลับ">‹</button><h2>วันลาของฉัน</h2></div>
+    <div class="stats" id="mStats"></div>
+    <div class="section-title">ใบลาของฉัน</div>
+    <div id="mList"></div>
+  </section>
+
+  <!-- รอพิจารณา -->
+  <section id="v-inbox" hidden>
+    <div class="subhead"><button class="back" data-go="home" aria-label="กลับ">‹</button><h2>ใบลารอพิจารณา</h2></div>
+    <div id="iList"></div>
   </section>
 </main>
 <script>
@@ -266,7 +415,7 @@
   }
 
   function show(view) {
-    ['loading','error','code','confirm','home'].forEach(function (v) { $('v-' + v).hidden = v !== view; });
+    ['loading','error','code','confirm','home','form','done','mine','inbox'].forEach(function (v) { $('v-' + v).hidden = v !== view; });
     window.scrollTo(0, 0);
   }
   function fail(text) {
@@ -333,6 +482,7 @@
     $('hNotice').hidden = verified;
     $('foot').textContent = hrContact ? 'ติดต่องานบุคคล โทร ' + hrContact : '';
     show('home');
+    if (!me.demo) loadDefaults();
   }
 
   // ---------- 1. กรอกรหัส ----------
@@ -399,10 +549,217 @@
       .then(function () { btn.disabled = false; btn.textContent = 'ยืนยันและผูกบัญชี'; });
   });
 
+
+  // ================= ระยะ 1: ยื่นลา / วันลาของฉัน / รอพิจารณา =================
+  var TH_MON = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  var TH_DOW = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+  var TYPE_IC = { sick: 'c-red', personal: 'c-amber', vacation: 'c-blue' };
+  var TYPE_GLYPH = { sick: '♥', personal: '◆', vacation: '☀' };
+  var defaults = { contact: '', phone: '', today: '', isApprover: false };
+  function thDate(iso, dow) {
+    if (!iso) return '';
+    var p = iso.split('-'), d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]));
+    return (dow ? TH_DOW[d.getUTCDay()] + ' ' : '') + (+p[2]) + ' ' + TH_MON[+p[1] - 1] + ' ' + String(+p[0] + 543).slice(-2);
+  }
+  function range(l) {
+    var half = l.halfDay === 'morning' ? ' (ครึ่งเช้า)' : l.halfDay === 'afternoon' ? ' (ครึ่งบ่าย)' : '';
+    return l.start === l.end ? thDate(l.start, true) + half : thDate(l.start, true) + ' – ' + thDate(l.end, true);
+  }
+  function esc(t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
+  function toast(t) { var el = document.createElement('div'); el.className = 'toast'; el.textContent = t; document.body.appendChild(el); setTimeout(function () { el.remove(); }, 2600); }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-go]');
+    if (!b) return;
+    var go = b.getAttribute('data-go');
+    if (go === 'home') show('home');
+    if (go === 'form') openForm();
+    if (go === 'mine') openMine();
+    if (go === 'inbox') openInbox();
+  });
+
+  function loadDefaults() {
+    api('leaveDefaults').then(function (d) {
+      defaults = d;
+      $('tileInbox').hidden = !d.isApprover;
+      if (d.isApprover) api('inbox').then(function (r) { var n = r.items.length; $('inboxCount').hidden = !n; $('inboxCount').textContent = n; }).catch(function () {});
+    }).catch(function () {});
+  }
+
+  // ---------- ฟอร์มยื่นลา ----------
+  var form = { type: '' }, checkTimer = null, lastCheck = null;
+  function openForm() {
+    $('fContact').value = $('fContact').value || defaults.contact || '';
+    $('fPhone').value = $('fPhone').value || defaults.phone || '';
+    if (!$('fStart').value) { $('fStart').value = defaults.today || ''; $('fEnd').value = defaults.today || ''; }
+    show('form');
+    if (!form.type) setType('sick'); else scheduleCheck();
+  }
+  function setType(t) {
+    form.type = t;
+    Array.prototype.forEach.call($('typeSeg').children, function (b) { b.className = b.getAttribute('data-type') === t ? 'on' : ''; });
+    $('reasonBox').hidden = t === 'vacation';
+    $('reasonHint').textContent = t === 'sick' ? 'ไม่ต้องระบุชื่อโรคก็ได้ เช่น "ป่วย พักรักษาตัว"' : '';
+    $('emergencyBox').hidden = t !== 'personal';
+    scheduleCheck();
+  }
+  $('typeSeg').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) setType(b.getAttribute('data-type')); });
+  function formBody() {
+    var half = document.querySelector('input[name=half]:checked');
+    return { type: form.type, start: $('fStart').value, end: $('fEnd').value || $('fStart').value, halfDay: half ? half.value : '',
+      firstDayAfternoonOnly: $('fFirstPm').checked, lastDayMorningOnly: $('fLastAm').checked,
+      reason: $('fReason').value.trim(), contact: $('fContact').value.trim(), phone: $('fPhone').value.trim(),
+      emergency: $('fEmergency').checked, abroad: $('fAbroad').checked, hasMedicalCert: $('fCert').checked };
+  }
+  function syncDates() {
+    if ($('fStart').value && (!$('fEnd').value || $('fEnd').value < $('fStart').value)) $('fEnd').value = $('fStart').value;
+    var single = $('fStart').value === $('fEnd').value;
+    $('halfSingle').hidden = !single; $('halfMulti').hidden = single;
+    var b = formBody();
+    $('dateSum').textContent = b.start ? range({ start: b.start, end: b.end, halfDay: single ? b.halfDay : '' }) : '';
+  }
+  ['fStart','fEnd','fFirstPm','fLastAm','fEmergency','fAbroad','fCert'].forEach(function (id) { $(id).addEventListener('change', scheduleCheck); });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name=half]'), function (r) { r.addEventListener('change', scheduleCheck); });
+  $('fReason').addEventListener('input', scheduleCheck);
+
+  function scheduleCheck() {
+    syncDates();
+    clearTimeout(checkTimer);
+    $('btnSubmit').disabled = true;
+    checkTimer = setTimeout(runCheck, 500);
+  }
+  function runCheck() {
+    var b = formBody();
+    if (!b.start || !b.type) return;
+    var token = {}; lastCheck = token;
+    api('leaveCheck', b).then(function (r) {
+      if (lastCheck === token) renderCheck(r);
+    }).catch(function (e) { note($('formMsg'), e.message); });
+  }
+  function renderCheck(r) {
+    note($('formMsg'), '');
+    $('checkCard').hidden = false;
+    $('sumDays').textContent = r.days;
+    var icon = { error: '✕', warning: '!', info: 'i' };
+    $('sumFindings').innerHTML = r.findings.map(function (f) { return '<li class="' + f.level + '"><b>' + icon[f.level] + '</b><span>' + esc(f.message) + '</span></li>'; }).join('');
+    $('certBox').hidden = !r.findings.some(function (f) { return f.code === 'medical_cert_required'; }) && !$('fCert').checked;
+    var roleText = { hr: 'ตรวจสอบ', comment: 'ให้ความเห็น', approve: 'อนุญาต', skipped: 'ข้าม' };
+    $('sumRoute').innerHTML = r.route.length ? r.route.map(function (s) {
+      return '<li class="' + s.role + '"><i></i><div class="r">' + esc(s.title) + ' · ' + roleText[s.role] + (s.acting ? ' (รักษาราชการแทน)' : '') + '</div>' +
+        (s.who ? '<div class="w">' + esc(s.who) + '</div>' : '') + (s.note ? '<div class="w">' + esc(s.note) + '</div>' : '') + '</li>';
+    }).join('') : '<li class="w">—</li>';
+    $('btnSubmit').disabled = !r.canSubmit;
+  }
+  $('btnSubmit').addEventListener('click', function () {
+    var btn = this, b = formBody();
+    if ((b.type === 'sick' || b.type === 'personal') && !b.reason) return note($('formMsg'), 'กรุณาระบุเหตุผลการลา');
+    if (!b.contact || !b.phone) return note($('formMsg'), 'กรุณากรอกที่ติดต่อและหมายเลขโทรศัพท์ระหว่างลา');
+    btn.disabled = true; btn.textContent = 'กำลังยื่น…';
+    api('leaveSubmit', b).then(function (r) {
+      $('doneText').textContent = 'เลขที่ ' + r.id + ' · ' + r.days + ' วันทำการ · ' + (r.hrReview ? 'งานบุคคลตรวจก่อน แล้วส่งถึง ' : 'ส่งถึง ') + r.approver;
+      $('fReason').value = ''; $('fEmergency').checked = false; $('fAbroad').checked = false; $('fCert').checked = false;
+      defaults.contact = b.contact; defaults.phone = b.phone;
+      show('done');
+    }).catch(function (e) { note($('formMsg'), e.message); })
+      .then(function () { btn.disabled = false; btn.textContent = 'ยื่นใบลา'; });
+  });
+
+  // ---------- วันลาของฉัน ----------
+  function openMine() {
+    $('mStats').innerHTML = '<div class="stat full loading"><div class="spinner"></div></div>'; $('mList').innerHTML = '';
+    show('mine');
+    api('myLeaves').then(renderMine).catch(function (e) { $('mStats').innerHTML = '<div class="msg bad stat full">' + esc(e.message) + '</div>'; });
+  }
+  function renderMine(m) {
+    var v = m.vacation, h = '';
+    if (v) {
+      var left = Math.max(0, v.total - v.used);
+      h += '<div class="stat full"><div class="k">ลาพักผ่อนคงเหลือ ปีงบ ' + m.fiscalYear + '</div><div class="v">' + left + ' <small>จาก ' + v.total + ' วัน (สะสม ' + v.carried + ' + ปีนี้ ' + v.thisYear + ')</small></div>' +
+        (v.carryRecorded ? '' : '<div class="hint">งานบุคคลยังไม่ได้บันทึกยอดสะสมยกมา ตัวเลขอาจน้อยกว่าจริง</div>') + '</div>';
+    }
+    h += '<div class="stat"><div class="k">ลาป่วย ปีนี้</div><div class="v">' + m.sickDays + ' <small>วัน</small></div></div>';
+    h += '<div class="stat"><div class="k">ลากิจ ปีนี้</div><div class="v">' + m.personalDays + ' <small>วัน</small></div></div>';
+    var pct = Math.min(100, Math.round(m.salary.counted / m.salary.limit * 100));
+    var cls = m.salary.counted > m.salary.limit ? 'bad' : m.salary.counted >= m.salary.warnAt ? 'warn' : '';
+    h += '<div class="stat full"><div class="k">วันลาที่นับเลื่อนเงินเดือน รอบครึ่งปีที่ ' + m.half + '</div><div class="v">' + m.salary.counted + ' <small>จาก ' + m.salary.limit + ' วัน</small></div><div class="meter ' + cls + '"><b style="width:' + pct + '%"></b></div></div>';
+    $('mStats').innerHTML = h;
+    $('mList').innerHTML = m.leaves.length ? m.leaves.map(function (l) {
+      return '<div class="card litem"><span class="ic ' + (TYPE_IC[l.type] || 'c-green') + '">' + (TYPE_GLYPH[l.type] || '•') + '</span><div style="flex:1;min-width:0">' +
+        '<div class="t">' + esc(l.typeName) + ' · ' + l.days + ' วัน</div><div class="d">' + esc(range(l)) + ' · ' + esc(l.id) + '</div>' +
+        '<span class="st ' + l.status + '">' + esc(l.statusText) + (l.waitingFor ? ' · รอ ' + esc(l.waitingFor) : '') + '</span>' +
+        (l.lastComment ? '<div class="d" style="margin-top:6px">ความเห็น: ' + esc(l.lastComment) + '</div>' : '') +
+        (l.canCancel ? '<div><button class="link" data-cancel="' + esc(l.id) + '">ยกเลิกใบลานี้</button></div>' : '') + '</div></div>';
+    }).join('') : '<div class="card empty">ยังไม่มีใบลาในระบบ</div>';
+  }
+  $('mList').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-cancel]');
+    if (!b) return;
+    if (!b.getAttribute('data-sure')) { b.setAttribute('data-sure', '1'); b.textContent = 'แตะอีกครั้งเพื่อยืนยันการยกเลิก'; return; }
+    api('cancelLeave', { leaveId: b.getAttribute('data-cancel') }).then(function () { toast('ยกเลิกใบลาแล้ว'); openMine(); }).catch(function (er) { toast(er.message); });
+  });
+
+  // ---------- รอพิจารณา ----------
+  function openInbox() {
+    $('iList').innerHTML = '<div class="card loading"><div class="spinner"></div></div>';
+    show('inbox');
+    api('inbox').then(renderInbox).catch(function (e) { $('iList').innerHTML = '<div class="msg bad">' + esc(e.message) + '</div>'; });
+  }
+  function renderInbox(r) {
+    $('inboxCount').hidden = !r.items.length; $('inboxCount').textContent = r.items.length;
+    $('iList').innerHTML = r.items.length ? r.items.map(function (c) {
+      var acts = c.myRole === 'hr'
+        ? '<button class="btn" data-d="pass">ตรวจแล้ว ส่งต่อ</button><button class="btn ghost" data-d="return">ส่งกลับแก้ไข</button>'
+        : c.myRole === 'comment'
+          ? '<button class="btn" data-d="forward" data-c="เห็นควรอนุญาต">เห็นควรอนุญาต</button><button class="btn ghost" data-d="forward" data-c="เห็นควรไม่อนุญาต">เห็นควรไม่อนุญาต</button>'
+          : '<button class="btn" data-d="approve">อนุญาต</button><button class="btn danger" data-d="reject">ไม่อนุญาต</button>';
+      var hist = c.history.map(function (h) { return '<div class="d">• ' + esc(h.title) + ': ' + esc(h.result) + (h.who ? ' (' + esc(h.who) + ')' : '') + (h.comment ? ' — ' + esc(h.comment) : '') + '</div>'; }).join('');
+      return '<div class="card" data-leave="' + esc(c.id) + '">' +
+        '<div class="litem"><span class="ic ' + (TYPE_IC[c.type] || 'c-green') + '">' + (TYPE_GLYPH[c.type] || '•') + '</span><div style="flex:1;min-width:0">' +
+        '<div class="t">' + esc(c.applicant) + '</div><div class="d">' + esc(c.position) + ' · ' + esc(c.unit) + '</div></div></div>' +
+        '<dl class="kv"><dt>ประเภท</dt><dd><b>' + esc(c.typeName) + ' ' + c.days + ' วัน</b></dd><dt>วันที่</dt><dd>' + esc(range(c)) + '</dd>' +
+        (c.reason ? '<dt>เนื่องจาก</dt><dd>' + esc(c.reason) + '</dd>' : '') +
+        '<dt>ปีนี้ลาแล้ว</dt><dd>ป่วย ' + c.statsThisYear.sick + ' · กิจ ' + c.statsThisYear.personal + ' · พักผ่อน ' + c.statsThisYear.vacation + ' วัน</dd>' +
+        '<dt>ขั้นของคุณ</dt><dd>' + esc(c.stepTitle) + (c.acting ? ' (รักษาราชการแทน)' : '') + '</dd></dl>' +
+        (c.warnings ? '<ul class="flist"><li class="warning"><b>!</b><span>' + esc(c.warnings) + '</span></li></ul>' : '') +
+        (hist ? '<div style="margin-top:10px">' + hist + '</div>' : '') +
+        '<textarea class="cm" placeholder="ความเห็น (ไม่อนุญาตหรือส่งกลับ ต้องระบุเหตุผล)" style="margin-top:12px;min-height:56px"></textarea>' +
+        '<div class="acts">' + acts + '</div></div>';
+    }).join('') : '<div class="card empty">ไม่มีใบลารอพิจารณา 🎉</div>';
+  }
+  $('iList').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-d]');
+    if (!b) return;
+    var card = b.closest('[data-leave]'), cm = card.querySelector('.cm').value.trim();
+    var comment = [b.getAttribute('data-c') || '', cm].filter(Boolean).join(' · ');
+    var btns = card.querySelectorAll('.acts .btn');
+    Array.prototype.forEach.call(btns, function (x) { x.disabled = true; });
+    api('decide', { leaveId: card.getAttribute('data-leave'), decision: b.getAttribute('data-d'), comment: comment })
+      .then(function (r) { toast('บันทึกแล้ว: ' + r.result); openInbox(); })
+      .catch(function (er) { toast(er.message); Array.prototype.forEach.call(btns, function (x) { x.disabled = false; }); });
+  });
+
+  // ข้อมูลสมมติสำหรับดูหน้าจอ (?preview=...) ไม่เรียกระบบจริง
+  function demoApi(action) {
+    var D = {
+      leaveCheck: { days: 3, canSubmit: true, findings: [{ level: 'info', message: 'รอบ 2570 ครึ่งปีที่ 1: ลาไปแล้ว 5 จาก 23 วัน' }, { level: 'warning', message: 'ลาติดกับวันหยุดยาว 3 วัน ผู้อนุญาตพิจารณาตามดุลพินิจ' }],
+        route: [{ role: 'approve', title: 'ผู้อำนวยการกองการเจ้าหน้าที่', who: 'นางตัวอย่าง ผู้อำนวยการ' }] },
+      myLeaves: { fiscalYear: 2570, half: 1, sickDays: 2, personalDays: 1.5, salary: { counted: 3.5, limit: 23, warnAt: 18 },
+        vacation: { total: 20, carried: 10, thisYear: 10, used: 4, cap: 20, carryRecorded: true },
+        leaves: [{ id: 'L2570-0012', type: 'vacation', typeName: 'ลาพักผ่อน', start: '2026-11-16', end: '2026-11-18', days: 3, status: 'pending', statusText: 'รออนุมัติ', waitingFor: 'ผู้อำนวยการกองการเจ้าหน้าที่', canCancel: true },
+          { id: 'L2570-0007', type: 'sick', typeName: 'ลาป่วย', start: '2026-10-20', end: '2026-10-21', days: 2, status: 'approved', statusText: 'อนุมัติ' },
+          { id: 'L2570-0003', type: 'personal', typeName: 'ลากิจส่วนตัว', start: '2026-10-08', end: '2026-10-08', halfDay: 'morning', days: 0.5, status: 'rejected', statusText: 'ไม่อนุมัติ', lastComment: 'ช่วงนั้นมีงานตรวจประเมิน' }] },
+      inbox: { items: [{ id: 'L2570-0013', applicant: 'นางสาวตัวอย่าง ใจดี', position: 'เจ้าพนักงานธุรการชำนาญงาน', unit: 'กองการเจ้าหน้าที่', type: 'personal', typeName: 'ลากิจส่วนตัว', start: '2026-11-05', end: '2026-11-06', days: 2, reason: 'ไปทำธุระที่อำเภอ', statsThisYear: { sick: 1, personal: 0, vacation: 3 }, history: [], myRole: 'approve', stepTitle: 'ผู้อำนวยการกองการเจ้าหน้าที่' }] },
+      leaveSubmit: { id: 'L2570-0014', days: 3, approver: 'ผู้อำนวยการกองการเจ้าหน้าที่', hrReview: false },
+      decide: { result: 'อนุญาต' }, cancelLeave: {}, leaveDefaults: defaults
+    };
+    return Promise.resolve(D[action] || {});
+  }
+
   // ---------- ตัวอย่างหน้าจอ (?preview=home|code|confirm) ใช้ข้อมูลสมมติ ไม่เชื่อมระบบจริง ----------
   var pv = new URLSearchParams(location.search).get('preview');
   if (pv) {
-    var demo = { linked: true, hrContact: '042-xxx-xxx', person: { name: 'นายสมมติ ตัวอย่าง', position: 'นักทรัพยากรบุคคลปฏิบัติการ', profileStatus: pv === 'verified' ? 'ยืนยันแล้ว' : 'รองานบุคคลตรวจ' } };
+    api = demoApi;
+    var demo = { demo: true, linked: true, hrContact: '042-xxx-xxx', person: { name: 'นายสมมติ ตัวอย่าง', position: 'นักทรัพยากรบุคคลปฏิบัติการ', profileStatus: pv === 'verified' ? 'ยืนยันแล้ว' : 'รองานบุคคลตรวจ' } };
     if (pv === 'code') return show('code');
     if (pv === 'confirm') {
       preview = { name: 'นายสมมติ ตัวอย่าง', position: 'นักทรัพยากรบุคคลปฏิบัติการ', official: true, appointDate: '2015-06-01' };
@@ -410,7 +767,12 @@
       appoint.set(preview.appointDate); $('appointHint').textContent = 'งานบุคคลมีวันที่นี้อยู่แล้ว ถ้าถูกต้องไม่ต้องแก้'; $('contBox').hidden = false;
       return show('confirm');
     }
-    return home(demo);
+    defaults = { contact: 'บ้านเลขที่ 1 ต.หนองบัว', phone: '081-000-0000', today: '2026-11-02', isApprover: true };
+    home(demo); $('tileInbox').hidden = false; $('inboxCount').hidden = false; $('inboxCount').textContent = 1;
+    if (pv === 'form') openForm();
+    if (pv === 'mine') openMine();
+    if (pv === 'inbox') openInbox();
+    return;
   }
 
   // ---------- เริ่มต้น ----------
