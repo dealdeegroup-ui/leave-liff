@@ -263,9 +263,15 @@
   .credit-rule { display:block; width:56px; height:1px; margin:0 auto 10px; background:linear-gradient(90deg, transparent, var(--gold), transparent); }
   .credit b { font-weight:600; color:var(--brand2); }
   @media (prefers-color-scheme: dark) { .credit b { color:var(--brand); } }
+  .card .d { font-size:13.5px; color:var(--muted); }
+  .cancel-form { margin-top:10px; padding:12px; border:1px dashed var(--goldLine); border-radius:14px; background:var(--surface2); }
+  .cancel-form .btn { margin-top:12px; }
+  .cancel-banner { margin-top:12px; padding:10px 12px; border-radius:12px; background:var(--goldSoft); color:var(--goldText); font-weight:600; font-size:14px; border:1px solid var(--goldLine); }
+  .cancel-banner div { font-weight:400; margin-top:2px; }
+  .link.soft { color:var(--brand); }
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script src="config.js?v=8"></script>
+<script src="config.js?v=9"></script>
 </head>
 <body>
 <header class="hero">
@@ -782,16 +788,45 @@
     $('mList').innerHTML = m.leaves.length ? m.leaves.map(function (l) {
       return '<div class="card litem"><span class="ic ' + (TYPE_IC[l.type] || 'c-green') + '">' + (TYPE_GLYPH[l.type] || '•') + '</span><div style="flex:1;min-width:0">' +
         '<div class="t">' + esc(l.typeName) + ' · ' + l.days + ' วัน</div><div class="d">' + esc(range(l)) + ' · ' + esc(l.id) + '</div>' +
-        '<span class="st ' + l.status + '">' + esc(l.statusText) + (l.waitingFor ? ' · รอ ' + esc(l.waitingFor) : '') + '</span>' +
+        '<span class="st ' + (l.cancelStatus === 'รอพิจารณา' ? 'pending' : l.status) + '">' +
+          (l.cancelStatus === 'รอพิจารณา' ? 'ขอยกเลิกวันลา' + (l.cancelFrom > l.start ? 'ตั้งแต่ ' + esc(thDate(l.cancelFrom)) : 'ทั้งใบ') : esc(l.statusText)) +
+          (l.waitingFor ? ' · รอ ' + esc(l.waitingFor) : '') + '</span>' +
+        (l.cancelStatus === 'ไม่อนุญาต' ? '<div class="d" style="margin-top:6px">คำขอยกเลิกครั้งล่าสุดไม่ได้รับอนุญาต</div>' : '') +
         (l.lastComment ? '<div class="d" style="margin-top:6px">ความเห็น: ' + esc(l.lastComment) + '</div>' : '') +
-        (l.canCancel ? '<div><button class="link" data-cancel="' + esc(l.id) + '">ยกเลิกใบลานี้</button></div>' : '') + '</div></div>';
+        (l.canWithdraw ? '<div><button class="link" data-withdraw="' + esc(l.id) + '">ถอนใบลานี้</button></div>' : '') +
+        (l.canRequestCancel ? '<div><button class="link" data-askcancel="' + esc(l.id) + '">ขอยกเลิกวันลา</button></div>' +
+          '<div class="cancel-form" data-for="' + esc(l.id) + '" hidden>' +
+            '<label class="f">ยกเลิกตั้งแต่วันที่</label>' +
+            '<input type="date" class="cf-from" value="' + esc(l.cancelEarliest) + '" min="' + esc(l.cancelEarliest) + '" max="' + esc(l.end) + '">' +
+            '<p class="hint">' + (l.cancelEarliest === l.start ? 'เลือกวันแรกของใบลา = ยกเลิกทั้งใบ' : 'กำลังลาอยู่ ยกเลิกได้ตั้งแต่พรุ่งนี้เป็นต้นไป') + '</p>' +
+            '<label class="f">เหตุผลที่ขอยกเลิก</label><textarea class="cf-reason" maxlength="300" style="min-height:56px"></textarea>' +
+            '<p class="hint">คำขอจะส่งถึงผู้อนุญาตคนเดิม ระหว่างรอ วันลายังนับตามเดิม</p>' +
+            '<button class="btn" data-sendcancel="' + esc(l.id) + '">ส่งคำขอยกเลิก</button>' +
+          '</div>' : '') + '</div></div>';
     }).join('') : '<div class="card empty">ยังไม่มีใบลาในระบบ</div>';
   }
   $('mList').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-cancel]');
-    if (!b) return;
-    if (!b.getAttribute('data-sure')) { b.setAttribute('data-sure', '1'); b.textContent = 'แตะอีกครั้งเพื่อยืนยันการยกเลิก'; return; }
-    api('cancelLeave', { leaveId: b.getAttribute('data-cancel') }).then(function () { toast('ยกเลิกใบลาแล้ว'); openMine(); }).catch(function (er) { toast(er.message); });
+    var w = e.target.closest('[data-withdraw]');
+    if (w) {
+      if (!w.getAttribute('data-sure')) { w.setAttribute('data-sure', '1'); w.textContent = 'แตะอีกครั้งเพื่อยืนยันการถอนใบลา'; return; }
+      api('cancelLeave', { leaveId: w.getAttribute('data-withdraw') }).then(function () { toast('ถอนใบลาแล้ว'); openMine(); }).catch(function (er) { toast(er.message); });
+      return;
+    }
+    var a = e.target.closest('[data-askcancel]');
+    if (a) {
+      var f = document.querySelector('.cancel-form[data-for="' + a.getAttribute('data-askcancel') + '"]');
+      f.hidden = !f.hidden;
+      return;
+    }
+    var s = e.target.closest('[data-sendcancel]');
+    if (s) {
+      var form = s.closest('.cancel-form'), reason = form.querySelector('.cf-reason').value.trim();
+      if (!reason) { toast('กรุณาระบุเหตุผลที่ขอยกเลิก'); return; }
+      s.disabled = true; s.textContent = 'กำลังส่ง…';
+      api('requestCancel', { leaveId: s.getAttribute('data-sendcancel'), from: form.querySelector('.cf-from').value, reason: reason })
+        .then(function () { toast('ส่งคำขอยกเลิกแล้ว'); openMine(); })
+        .catch(function (er) { toast(er.message); s.disabled = false; s.textContent = 'ส่งคำขอยกเลิก'; });
+    }
   });
 
   // ---------- รอพิจารณา ----------
@@ -803,7 +838,9 @@
   function renderInbox(r) {
     $('inboxCount').hidden = !r.items.length; $('inboxCount').textContent = r.items.length;
     $('iList').innerHTML = r.items.length ? r.items.map(function (c) {
-      var acts = c.myRole === 'hr'
+      var acts = c.myRole === 'cancel'
+        ? '<button class="btn" data-d="approve">อนุญาตให้ยกเลิก</button><button class="btn danger" data-d="reject">ไม่อนุญาต</button>'
+        : c.myRole === 'hr'
         ? '<button class="btn" data-d="pass">ตรวจแล้ว ส่งต่อ</button><button class="btn ghost" data-d="return">ส่งกลับแก้ไข</button>'
         : c.myRole === 'comment'
           ? '<button class="btn" data-d="forward" data-c="เห็นควรอนุญาต">เห็นควรอนุญาต</button><button class="btn ghost" data-d="forward" data-c="เห็นควรไม่อนุญาต">เห็นควรไม่อนุญาต</button>'
@@ -812,6 +849,7 @@
       return '<div class="card" data-leave="' + esc(c.id) + '">' +
         '<div class="litem"><span class="ic ' + (TYPE_IC[c.type] || 'c-green') + '">' + (TYPE_GLYPH[c.type] || '•') + '</span><div style="flex:1;min-width:0">' +
         '<div class="t">' + esc(c.applicant) + '</div><div class="d">' + esc(c.position) + ' · ' + esc(c.unit) + '</div></div></div>' +
+        (c.myRole === 'cancel' ? '<div class="cancel-banner">คำขอยกเลิกวันลา · ' + (c.cancelWhole ? 'ทั้งใบ' : 'ตั้งแต่ ' + esc(thDate(c.cancelFrom, true))) + '<div>เหตุผล: ' + esc(c.cancelReason) + '</div></div>' : '') +
         '<dl class="kv"><dt>ประเภท</dt><dd><b>' + esc(c.typeName) + ' ' + c.days + ' วัน</b></dd><dt>วันที่</dt><dd>' + esc(range(c)) + '</dd>' +
         (c.reason ? '<dt>เนื่องจาก</dt><dd>' + esc(c.reason) + '</dd>' : '') +
         '<dt>ปีนี้ลาแล้ว</dt><dd>ป่วย ' + c.statsThisYear.sick + ' · กิจ ' + c.statsThisYear.personal + ' · พักผ่อน ' + c.statsThisYear.vacation + ' วัน</dd>' +
@@ -883,12 +921,14 @@
         route: [{ role: 'approve', title: 'ผู้อำนวยการกองการเจ้าหน้าที่', who: 'นางตัวอย่าง ผู้อำนวยการ' }] },
       myLeaves: { fiscalYear: 2570, half: 1, sickDays: 2, personalDays: 1.5, salary: { counted: 3.5, limit: 23, warnAt: 18 },
         vacation: { total: 20, carried: 10, thisYear: 10, used: 4, cap: 20, carryRecorded: true },
-        leaves: [{ id: 'L2570-0012', type: 'vacation', typeName: 'ลาพักผ่อน', start: '2026-11-16', end: '2026-11-18', days: 3, status: 'pending', statusText: 'รออนุมัติ', waitingFor: 'ผู้อำนวยการกองการเจ้าหน้าที่', canCancel: true },
+        leaves: [{ id: 'L2570-0012', type: 'vacation', typeName: 'ลาพักผ่อน', start: '2026-11-16', end: '2026-11-18', days: 3, status: 'pending', statusText: 'รออนุมัติ', waitingFor: 'ผู้อำนวยการกองการเจ้าหน้าที่', canWithdraw: true },
+          { id: 'L2570-0010', type: 'vacation', typeName: 'ลาพักผ่อน', start: '2026-12-21', end: '2026-12-23', days: 3, status: 'approved', statusText: 'อนุมัติ', canRequestCancel: true, cancelEarliest: '2026-12-21' },
           { id: 'L2570-0007', type: 'sick', typeName: 'ลาป่วย', start: '2026-10-20', end: '2026-10-21', days: 2, status: 'approved', statusText: 'อนุมัติ' },
           { id: 'L2570-0003', type: 'personal', typeName: 'ลากิจส่วนตัว', start: '2026-10-08', end: '2026-10-08', halfDay: 'morning', days: 0.5, status: 'rejected', statusText: 'ไม่อนุมัติ', lastComment: 'ช่วงนั้นมีงานตรวจประเมิน' }] },
-      inbox: { items: [{ id: 'L2570-0013', applicant: 'นางสาวตัวอย่าง ใจดี', position: 'เจ้าพนักงานธุรการชำนาญงาน', unit: 'กองการเจ้าหน้าที่', type: 'personal', typeName: 'ลากิจส่วนตัว', start: '2026-11-05', end: '2026-11-06', days: 2, reason: 'ไปทำธุระที่อำเภอ', statsThisYear: { sick: 1, personal: 0, vacation: 3 }, history: [], myRole: 'approve', stepTitle: 'ผู้อำนวยการกองการเจ้าหน้าที่' }] },
+      inbox: { items: [{ id: 'L2570-0013', applicant: 'นางสาวตัวอย่าง ใจดี', position: 'เจ้าพนักงานธุรการชำนาญงาน', unit: 'กองการเจ้าหน้าที่', type: 'personal', typeName: 'ลากิจส่วนตัว', start: '2026-11-05', end: '2026-11-06', days: 2, reason: 'ไปทำธุระที่อำเภอ', statsThisYear: { sick: 1, personal: 0, vacation: 3 }, history: [], myRole: 'approve', stepTitle: 'ผู้อำนวยการกองการเจ้าหน้าที่' },
+        { id: 'L2570-0009', applicant: 'นายตัวอย่าง มีสุข', position: 'นักจัดการงานทั่วไป', unit: 'กองการเจ้าหน้าที่', type: 'vacation', typeName: 'ลาพักผ่อน', start: '2026-11-23', end: '2026-11-27', days: 5, statsThisYear: { sick: 0, personal: 1, vacation: 5 }, history: [{ title: 'ผู้อำนวยการกองการเจ้าหน้าที่', result: 'อนุญาต', who: 'นางตัวอย่าง ผู้อำนวยการ' }], myRole: 'cancel', stepTitle: 'ผู้อำนวยการกองการเจ้าหน้าที่', cancelFrom: '2026-11-26', cancelWhole: false, cancelReason: 'มีงานประชุมสภา' }] },
       leaveSubmit: { id: 'L2570-0014', days: 3, approver: 'ผู้อำนวยการกองการเจ้าหน้าที่', hrReview: false },
-      decide: { result: 'อนุญาต' }, cancelLeave: {}, leaveDefaults: defaults
+      decide: { result: 'อนุญาต' }, cancelLeave: {}, requestCancel: {}, leaveDefaults: defaults
     };
     return Promise.resolve(D[action] || {});
   }
