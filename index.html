@@ -258,13 +258,14 @@
   select:focus, input:focus, textarea:focus { outline:2px solid var(--brand); outline-offset:1px; }
   .check input { accent-color:var(--brand); }
   .foot { color:var(--goldText); }
+  .foot a { color:var(--brand); text-decoration:none; font-weight:600; border-bottom:1px solid var(--goldLine); padding-bottom:1px; }
   .credit { text-align:center; margin:28px 0 8px; color:var(--goldText); font-size:12.5px; line-height:1.6; }
   .credit-rule { display:block; width:56px; height:1px; margin:0 auto 10px; background:linear-gradient(90deg, transparent, var(--gold), transparent); }
   .credit b { font-weight:600; color:var(--brand2); }
   @media (prefers-color-scheme: dark) { .credit b { color:var(--brand); } }
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script src="config.js?v=7"></script>
+<script src="config.js?v=8"></script>
 </head>
 <body>
 <header class="hero">
@@ -493,7 +494,7 @@
   var cfg = window.LEAVE_CONFIG;
   var MONTHS = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
   var $ = function (id) { return document.getElementById(id); };
-  var idToken = null, preview = null, hrContact = '', picture = '';
+  var idToken = null, preview = null, hrContact = cfg.hrContact || '', picture = '';
   $('org').textContent = cfg.orgName;
   if (cfg.ownerUnit) {
     $('creditText').innerHTML = 'พัฒนาและดูแลโดย <b></b><br>' ;
@@ -565,6 +566,7 @@
   // ---------- หน้าหลัก ----------
   function home(me) {
     hrContact = me.hrContact || hrContact;
+    renderContact();
     if (!me.linked) { show('code'); setTimeout(function () { $('code').focus(); }, 50); return; }
     $('hName').textContent = me.person.name;
     $('hPos').textContent = me.person.position;
@@ -573,7 +575,6 @@
     $('hStatus').className = 'chip ' + (verified ? 'ok' : 'warn');
     $('hStatusText').textContent = verified ? 'ผูกบัญชีแล้ว' : 'รองานบุคคลตรวจข้อมูล';
     $('hNotice').hidden = verified;
-    $('foot').textContent = hrContact ? 'ติดต่องานบุคคล โทร ' + hrContact : '';
     show('home');
     if (!me.demo) loadDefaults();
   }
@@ -834,6 +835,18 @@
   });
 
 
+  // ---------- เบอร์ติดต่องานบุคคล (แตะเพื่อโทร) ----------
+  function renderContact() {
+    var el = $('foot');
+    el.textContent = '';
+    if (!hrContact) return;
+    var m = /^([\d\s\-]+?)(?:\s*ต่อ\s*(\d+))?$/.exec(hrContact.trim());
+    var a = document.createElement('a');
+    a.textContent = '☎ ติดต่องานบุคคล ' + hrContact;
+    if (m) a.href = 'tel:' + m[1].replace(/\D/g, '') + (m[2] ? ',' + m[2] : '');
+    el.appendChild(a);
+  }
+
   // ---------- วันหยุดของเดือน (หน้าหลัก) ----------
   var TH_MON_FULL = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
   var holMonth = null;
@@ -884,7 +897,7 @@
   var pv = new URLSearchParams(location.search).get('preview');
   if (pv) {
     api = demoApi;
-    var demo = { demo: true, linked: true, hrContact: '042-xxx-xxx', person: { name: 'นายสมมติ ตัวอย่าง', position: 'นักทรัพยากรบุคคลปฏิบัติการ', profileStatus: pv === 'verified' ? 'ยืนยันแล้ว' : 'รองานบุคคลตรวจ' } };
+    var demo = { demo: true, linked: true, hrContact: '', person: { name: 'นายสมมติ ตัวอย่าง', position: 'นักทรัพยากรบุคคลปฏิบัติการ', profileStatus: pv === 'verified' ? 'ยืนยันแล้ว' : 'รองานบุคคลตรวจ' } };
     if (pv === 'code') return show('code');
     if (pv === 'confirm') {
       preview = { name: 'นายสมมติ ตัวอย่าง', position: 'นักทรัพยากรบุคคลปฏิบัติการ', official: true, appointDate: '2015-06-01' };
