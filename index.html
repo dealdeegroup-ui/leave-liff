@@ -274,7 +274,7 @@
   .viewer iframe { flex:1; width:100%; border:0; background:#fff; border-radius:0 0 14px 14px; }
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script src="config.js?v=10"></script>
+<script src="config.js?v=11"></script>
 </head>
 <body>
 <header class="hero">
@@ -590,6 +590,11 @@
     $('hNotice').hidden = verified;
     show('home');
     if (!me.demo) loadDefaults();
+    // เปิดจากเมนูด้านล่างของ LINE OA (?go=form|mine|inbox) ให้ไปหน้านั้นทันที
+    var g = goTarget; goTarget = '';
+    if (g === 'form') openForm();
+    if (g === 'mine') openMine();
+    if (g === 'inbox') openInbox();
   }
 
   // ---------- 1. กรอกรหัส ----------
@@ -664,6 +669,7 @@
   var TYPE_IC = { sick: 'c-red', personal: 'c-amber', vacation: 'c-blue' };
   var TYPE_GLYPH = { sick: '♥', personal: '◆', vacation: '☀' };
   var defaults = { contact: '', phone: '', today: '', isApprover: false };
+  var goTarget = '';
   function thDate(iso, dow) {
     if (!iso) return '';
     var p = iso.split('-'), d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]));
@@ -981,9 +987,17 @@
   }
 
   // ---------- เริ่มต้น ----------
+  // ลิงก์ liff.line.me/<id>?go=... อาจมาในรูป ?go= หรือ ?liff.state=%3Fgo%3D... (ก่อน LIFF แปลง)
+  function readGo() {
+    var q = new URLSearchParams(location.search), g = q.get('go'), st = q.get('liff.state');
+    if (!g && st) g = new URLSearchParams(st.replace(/^[^?]*\?/, '')).get('go');
+    return /^(form|mine|inbox)$/.test(g || '') ? g : '';
+  }
+  goTarget = readGo();
   liff.init({ liffId: cfg.liffId })
     .then(function () {
       if (!liff.isLoggedIn()) { liff.login(); return Promise.reject('redirect'); }
+      goTarget = goTarget || readGo();
       idToken = liff.getIDToken();
       if (!idToken) throw new Error('เข้าสู่ระบบด้วย LINE ไม่สำเร็จ');
       liff.getProfile().then(function (p) { picture = p.pictureUrl || ''; }).catch(function () {});
