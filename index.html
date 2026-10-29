@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ระบบการลา</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#f5f6fa; --card:#fff; --text:#1f2430; --muted:#667085; --ok:#12805c; --bad:#b42318; --accent:#06c755; --line:#e4e7ec; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#121417; --card:#1c1f24; --text:#e8eaed; --muted:#9aa1ad; --ok:#4cc38a; --bad:#f97066; --line:#2c3038; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:'Sarabun',system-ui,sans-serif; font-size:17px; line-height:1.5; }
+  main { max-width:520px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--muted); margin:0 0 20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:14px; }
+  ol { margin:0; padding-left:22px; }
+  li { margin:6px 0; }
+  .ok { color:var(--ok); } .bad { color:var(--bad); } .wait { color:var(--muted); }
+  button { width:100%; padding:14px; border:0; border-radius:12px; background:var(--accent); color:#fff; font:inherit; font-weight:600; }
+  button:disabled { opacity:.5; }
+  dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; }
+  dt { color:var(--muted); } dd { margin:0; word-break:break-all; }
+</style>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<main>
+  <h1>ทดสอบการเชื่อมต่อระบบการลา</h1>
+  <p class="sub" id="org"></p>
+
+  <div class="card">
+    <ol id="steps">
+      <li id="s1" class="wait">เปิดผ่าน LINE</li>
+      <li id="s2" class="wait">เข้าสู่ระบบด้วย LINE</li>
+      <li id="s3" class="wait">ระบบตรวจตัวตนกับ LINE</li>
+      <li id="s4" class="wait">ค้นหาในทะเบียนบุคลากร</li>
+    </ol>
+  </div>
+
+  <div class="card" id="result" hidden>
+    <dl id="info"></dl>
+  </div>
+
+  <button id="push" disabled>ส่งข้อความ LINE ทดสอบถึงตัวฉัน</button>
+  <p class="sub" id="pushResult"></p>
+</main>
+<script>
+(function () {
+  var cfg = window.LEAVE_CONFIG;
+  document.getElementById('org').textContent = cfg.orgName;
+  var idToken = null;
+
+  function step(id, ok, text) {
+    var el = document.getElementById(id);
+    el.className = ok ? 'ok' : 'bad';
+    el.textContent = (ok ? '✅ ' : '❌ ') + text;
+  }
+
+  function api(action) {
+    // ส่งเป็น text/plain เพื่อไม่ให้เบราว์เซอร์ส่ง preflight ซึ่ง Apps Script ไม่รองรับ
+    return fetch(cfg.apiUrl, { method: 'POST', body: JSON.stringify({ action: action, idToken: idToken }) })
+      .then(function (r) { return r.json(); })
+      .then(function (res) { if (!res.ok) throw new Error(res.error); return res; });
+  }
+
+  function row(label, value) {
+    var dl = document.getElementById('info');
+    var dt = document.createElement('dt'); dt.textContent = label;
+    var dd = document.createElement('dd'); dd.textContent = value;
+    dl.appendChild(dt); dl.appendChild(dd);
+  }
+
+  liff.init({ liffId: cfg.liffId })
+    .then(function () {
+      step('s1', true, liff.isInClient() ? 'เปิดผ่านแอป LINE' : 'เปิดผ่านเบราว์เซอร์');
+      if (!liff.isLoggedIn()) { liff.login(); return Promise.reject('redirect'); }
+      idToken = liff.getIDToken();
+      if (!idToken) throw new Error('ไม่ได้รับ ID token ตรวจว่า LIFF เปิด scope openid แล้ว');
+      step('s2', true, 'เข้าสู่ระบบด้วย LINE แล้ว');
+      return api('whoami');
+    })
+    .then(function (me) {
+      step('s3', true, 'ระบบยืนยันตัวตนกับ LINE แล้ว');
+      step('s4', me.linked, me.linked ? 'พบในทะเบียนบุคลากร' : 'ยังไม่ได้ผูกบัญชีกับทะเบียนบุคลากร (ปกติสำหรับระยะทดลอง)');
+      document.getElementById('result').hidden = false;
+      row('ชื่อใน LINE', me.displayName);
+      if (me.person) { row('บุคลากร', me.person.name); row('ตำแหน่ง', me.person.position); }
+      row('LINE userId', me.lineUserId);
+      document.getElementById('push').disabled = false;
+    })
+    .catch(function (err) {
+      if (err === 'redirect') return;
+      var pending = ['s1', 's2', 's3', 's4'].filter(function (id) { return document.getElementById(id).className === 'wait'; });
+      if (pending.length) step(pending[0], false, String(err.message || err));
+    });
+
+  document.getElementById('push').addEventListener('click', function () {
+    var btn = this, out = document.getElementById('pushResult');
+    btn.disabled = true; out.textContent = 'กำลังส่ง…';
+    api('testPush')
+      .then(function () { out.textContent = '✅ ส่งแล้ว ดูข้อความในแชตของ LINE OA'; })
+      .catch(function (e) { out.textContent = '❌ ' + e.message; btn.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>
