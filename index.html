@@ -188,9 +188,24 @@
   .acts .btn { margin-top:0; }
   .btn.danger { background:var(--red); }
   .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--text); color:var(--bg); padding:10px 16px; border-radius:12px; font-size:14px; z-index:9; max-width:90%; }
+
+  /* วันหยุดของเดือน */
+  .hol-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .hol-head h3 { margin:0; font-size:16px; font-weight:600; }
+  .hol-nav { display:flex; gap:6px; }
+  .hol-nav button { width:34px; height:34px; border-radius:10px; border:1px solid var(--line); background:var(--surface2); color:var(--text); font-size:18px; line-height:1; }
+  .hol-nav button:disabled { opacity:.35; }
+  .hol-list { list-style:none; margin:12px 0 0; padding:0; display:grid; gap:8px; }
+  .hol-list li { display:flex; gap:12px; align-items:center; }
+  .hol-date { width:46px; flex:none; text-align:center; border-radius:12px; background:var(--redSoft); color:var(--red); padding:5px 0 4px; line-height:1.15; }
+  .hol-date b { display:block; font-size:18px; }
+  .hol-date small { font-size:11px; }
+  .hol-list li.weekend .hol-date { background:var(--surface2); color:var(--muted); }
+  .hol-name { font-size:14.5px; }
+  .hol-sub { font-size:12.5px; color:var(--muted); }
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script src="config.js?v=4"></script>
+<script src="config.js?v=5"></script>
 </head>
 <body>
 <header class="hero">
@@ -257,9 +272,11 @@
     <div class="card">
       <h2>ข้อมูลสำหรับคำนวณสิทธิ์การลา</h2>
       <p class="lead">งานบุคคลจะตรวจกับทะเบียนประวัติอีกครั้ง</p>
+      <div id="appointBox">
       <label class="f" id="appointLabel">วันบรรจุเข้ารับราชการครั้งแรก</label>
       <div class="row3" id="appoint"></div>
       <p class="hint" id="appointHint"></p>
+      </div>
 
       <div id="contBox" hidden>
         <label class="check"><input type="checkbox" id="rejoined"> เคยออกจากราชการแล้วกลับเข้ามาใหม่</label>
@@ -315,6 +332,13 @@
         <span><span class="t" style="display:block">ใบลารอพิจารณา</span><span class="s" style="display:block;margin-top:0">สำหรับผู้บังคับบัญชาและงานบุคคล</span></span>
         <span class="badge-n" id="inboxCount" hidden></span>
       </button>
+    </div>
+    <div class="card" id="holCard" style="margin-top:14px" hidden>
+      <div class="hol-head">
+        <h3 id="holTitle">วันหยุดราชการ</h3>
+        <div class="hol-nav"><button id="holPrev" aria-label="เดือนก่อน">‹</button><button id="holNext" aria-label="เดือนถัดไป">›</button></div>
+      </div>
+      <ul class="hol-list" id="holList"></ul>
     </div>
     <p class="foot" id="foot"></p>
   </section>
@@ -510,6 +534,7 @@
           ? 'งานบุคคลมีวันที่นี้อยู่แล้ว ถ้าถูกต้องไม่ต้องแก้'
           : (preview.official ? 'รับโอนมาจาก อปท. อื่น ให้กรอกวันบรรจุครั้งแรก ไม่ใช่วันรับโอน' : 'วันที่เริ่มสัญญาจ้างครั้งแรกกับหน่วยงานนี้');
         appoint.set(preview.appointDate);
+        $('appointBox').hidden = !!preview.political;
         $('contBox').hidden = !preview.official;
         $('rejoined').checked = !!(preview.continuousServiceDate && preview.continuousServiceDate !== preview.appointDate);
         $('contFields').hidden = !$('rejoined').checked;
@@ -532,8 +557,8 @@
   $('btnConfirm').addEventListener('click', function () {
     var btn = this, msg = $('confirmMsg');
     note(msg, '');
-    var a = appoint.get();
-    if (!a) return note(msg, 'กรุณาเลือก' + $('appointLabel').textContent + 'ให้ครบ');
+    var a = preview.political ? '' : appoint.get();
+    if (!a && !preview.political) return note(msg, 'กรุณาเลือก' + $('appointLabel').textContent + 'ให้ครบ');
     if (a === 'invalid') return note(msg, 'วันที่ไม่ถูกต้อง');
     var c = '';
     if (preview.official && $('rejoined').checked) {
@@ -581,6 +606,7 @@
   function loadDefaults() {
     api('leaveDefaults').then(function (d) {
       defaults = d;
+      renderHolidays();
       $('tileInbox').hidden = !d.isApprover;
       if (d.isApprover) api('inbox').then(function (r) { var n = r.items.length; $('inboxCount').hidden = !n; $('inboxCount').textContent = n; }).catch(function () {});
     }).catch(function () {});
@@ -738,6 +764,36 @@
       .catch(function (er) { toast(er.message); Array.prototype.forEach.call(btns, function (x) { x.disabled = false; }); });
   });
 
+
+  // ---------- วันหยุดของเดือน (หน้าหลัก) ----------
+  var TH_MON_FULL = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  var holMonth = null;
+  function renderHolidays() {
+    var list = defaults.holidays || [];
+    if (!holMonth) holMonth = (defaults.today || new Date().toISOString()).slice(0, 7);
+    var y = +holMonth.slice(0, 4), m = +holMonth.slice(5, 7);
+    $('holTitle').textContent = 'วันหยุดราชการ ' + TH_MON_FULL[m - 1] + ' ' + (y + 543);
+    var items = list.filter(function (h) { return h.date.slice(0, 7) === holMonth; });
+    $('holList').innerHTML = items.length ? items.map(function (h) {
+      var p = h.date.split('-'), dow = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).getUTCDay();
+      var weekend = dow === 0 || dow === 6;
+      return '<li class="' + (weekend ? 'weekend' : '') + '"><span class="hol-date"><b>' + (+p[2]) + '</b><small>' + TH_DOW[dow] + '</small></span>' +
+        '<span><div class="hol-name">' + esc(h.name) + '</div>' + (weekend ? '<div class="hol-sub">ตรงกับวันหยุดสุดสัปดาห์</div>' : '') + '</span></li>';
+    }).join('') : '<li class="hol-sub">ไม่มีวันหยุดราชการในเดือนนี้</li>';
+    var first = list.length ? list[0].date.slice(0, 7) : holMonth, last = list.length ? list[list.length - 1].date.slice(0, 7) : holMonth;
+    $('holPrev').disabled = holMonth <= first;
+    $('holNext').disabled = holMonth >= last;
+    $('holCard').hidden = !list.length;
+  }
+  function shiftMonth(n) {
+    var y = +holMonth.slice(0, 4), m = +holMonth.slice(5, 7) - 1 + n;
+    y += Math.floor(m / 12); m = ((m % 12) + 12) % 12;
+    holMonth = y + '-' + ('0' + (m + 1)).slice(-2);
+    renderHolidays();
+  }
+  $('holPrev').addEventListener('click', function () { shiftMonth(-1); });
+  $('holNext').addEventListener('click', function () { shiftMonth(1); });
+
   // ข้อมูลสมมติสำหรับดูหน้าจอ (?preview=...) ไม่เรียกระบบจริง
   function demoApi(action) {
     var D = {
@@ -767,8 +823,9 @@
       appoint.set(preview.appointDate); $('appointHint').textContent = 'งานบุคคลมีวันที่นี้อยู่แล้ว ถ้าถูกต้องไม่ต้องแก้'; $('contBox').hidden = false;
       return show('confirm');
     }
-    defaults = { contact: 'บ้านเลขที่ 1 ต.หนองบัว', phone: '081-000-0000', today: '2026-11-02', isApprover: true };
-    home(demo); $('tileInbox').hidden = false; $('inboxCount').hidden = false; $('inboxCount').textContent = 1;
+    defaults = { contact: 'บ้านเลขที่ 1 ต.หนองบัว', phone: '081-000-0000', today: '2026-12-02', isApprover: true,
+      holidays: [{ date: '2026-10-13', name: 'วันนวมินทรมหาราช' }, { date: '2026-10-23', name: 'วันปิยมหาราช' }, { date: '2026-12-05', name: 'วันพ่อแห่งชาติ' }, { date: '2026-12-07', name: 'ชดเชยวันพ่อแห่งชาติ' }, { date: '2026-12-10', name: 'วันรัฐธรรมนูญ' }, { date: '2026-12-31', name: 'วันสิ้นปี' }, { date: '2027-01-01', name: 'วันขึ้นปีใหม่' }] };
+    home(demo); renderHolidays(); $('tileInbox').hidden = false; $('inboxCount').hidden = false; $('inboxCount').textContent = 1;
     if (pv === 'form') openForm();
     if (pv === 'mine') openMine();
     if (pv === 'inbox') openInbox();
