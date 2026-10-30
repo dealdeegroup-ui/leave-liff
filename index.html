@@ -144,6 +144,10 @@
   .seg button { padding:12px 6px; border-radius:14px; border:1.5px solid var(--line); background:var(--surface2); color:var(--text); font:inherit; font-weight:600; font-size:14.5px; display:flex; flex-direction:column; align-items:center; gap:6px; }
   .seg button svg { opacity:.8; }
   .seg button.on { border-color:var(--brand); background:var(--brandSoft); color:var(--brand); }
+  .otherlink { width:100%; margin-top:10px; padding:11px 12px; border:1px dashed var(--goldLine, var(--line)); border-radius:12px; background:transparent; color:var(--muted); font:inherit; font-size:14px; text-align:left; display:flex; justify-content:space-between; gap:8px; }
+  .otherlink span { color:var(--brand); font-weight:600; white-space:nowrap; }
+  #oFields .f { margin-top:14px; }
+  .flist li.w { background:var(--amberSoft); color:var(--amber); }
   .row2 { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
   .row2 > div { min-width:0; }
   input[type=date] { width:100%; min-width:0; max-width:100%; padding:11px 8px; font-size:15px !important; border:1px solid var(--line); border-radius:12px; background:var(--surface2); color:var(--text); font:inherit; min-height:46px; }
@@ -274,7 +278,7 @@
   .viewer iframe { flex:1; width:100%; border:0; background:#fff; border-radius:0 0 14px 14px; }
 </style>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script src="config.js?v=11"></script>
+<script src="config.js?v=12"></script>
 </head>
 <body>
 <header class="hero">
@@ -422,6 +426,7 @@
         <button data-type="personal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>ลากิจส่วนตัว</button>
         <button data-type="vacation"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M12 2v1M12 13v1M6 8H5M19 8h-1M4 21h16M7 21l5-7 5 7"/></svg>ลาพักผ่อน</button>
       </div>
+      <button class="otherlink" data-go="other">ลาประเภทอื่น เช่น คลอดบุตร อุปสมบท ศึกษาต่อ <span>พิมพ์ใบลา ›</span></button>
 
       <div class="row2">
         <div><label class="f" for="fStart">ตั้งแต่วันที่</label><input type="date" id="fStart"></div>
@@ -480,6 +485,44 @@
     </div>
   </section>
 
+  <!-- ลาประเภทอื่น (พิมพ์ใบลาไปเสนอแบบกระดาษ) -->
+  <section id="v-other" hidden>
+    <div class="subhead"><button class="back" data-go="form" aria-label="กลับ">‹</button><h2>ลาประเภทอื่น</h2></div>
+    <div class="card">
+      <p class="hint" style="margin-top:0">ประเภทเหล่านี้ระเบียบให้เสนอใบลาแบบกระดาษ ระบบจะกรอกใบลาตามแบบท้ายประกาศให้ แล้วพิมพ์ ลงชื่อ และเสนอตามลำดับชั้น เมื่อได้รับอนุญาต งานบุคคลจะบันทึกเข้าระบบให้</p>
+      <label class="f" for="oType">ประเภทการลา</label>
+      <select id="oType"><option value="">กำลังโหลด…</option></select>
+      <p class="hint" id="oInfo" hidden></p>
+      <div class="row2">
+        <div><label class="f" for="oStart">ตั้งแต่วันที่</label><input type="date" id="oStart"></div>
+        <div><label class="f" for="oEnd">ถึงวันที่</label><input type="date" id="oEnd"></div>
+      </div>
+      <div id="oFields"></div>
+      <label class="f" for="oContact">ระหว่างลาติดต่อได้ที่</label>
+      <textarea id="oContact" maxlength="200" placeholder="ที่อยู่ระหว่างลา" style="min-height:56px"></textarea>
+      <label class="f" for="oPhone">หมายเลขโทรศัพท์</label>
+      <input type="tel" id="oPhone" maxlength="20" placeholder="08x-xxx-xxxx">
+      <p class="hint" id="oNotOnline"></p>
+    </div>
+    <div id="oMsg" class="msg bad" hidden></div>
+    <button class="btn" id="btnOther">สร้างใบลาสำหรับพิมพ์</button>
+  </section>
+
+  <section id="v-otherDone" hidden>
+    <div class="card" style="text-align:center;padding:24px 18px">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--brandSoft);color:var(--brand);display:grid;place-items:center;margin:0 auto 12px">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>
+      </div>
+      <h2>ใบลาพร้อมพิมพ์</h2>
+      <p class="lead" id="odText" style="margin:6px 0 0"></p>
+      <ul class="flist" id="odWarn" hidden style="text-align:left"></ul>
+      <button class="btn" id="odPrint">เปิดหน้าพิมพ์ในเบราว์เซอร์</button>
+      <button class="btn ghost" id="odView">ดูใบลา</button>
+      <p class="hint">พิมพ์หรือบันทึกเป็น PDF จากเบราว์เซอร์ ลงชื่อ แล้วเสนอตามลำดับชั้น ลิงก์หน้าพิมพ์ใช้ได้ 6 ชั่วโมง ถ้าหมดอายุให้สร้างใหม่</p>
+      <button class="btn ghost" data-go="home">กลับหน้าหลัก</button>
+    </div>
+  </section>
+
   <!-- วันลาของฉัน -->
   <section id="v-mine" hidden>
     <div class="subhead"><button class="back" data-go="home" aria-label="กลับ">‹</button><h2>วันลาของฉัน</h2></div>
@@ -522,7 +565,7 @@
   }
 
   function show(view) {
-    ['loading','error','code','confirm','home','form','done','mine','inbox'].forEach(function (v) { $('v-' + v).hidden = v !== view; });
+    ['loading','error','code','confirm','home','form','done','mine','inbox','other','otherDone'].forEach(function (v) { $('v-' + v).hidden = v !== view; });
     window.scrollTo(0, 0);
   }
   function fail(text) {
@@ -690,6 +733,7 @@
     if (go === 'form') openForm();
     if (go === 'mine') openMine();
     if (go === 'inbox') openInbox();
+    if (go === 'other') openOther();
   });
 
   function loadDefaults() {
@@ -945,6 +989,81 @@
       .then(function () { v.disabled = false; });
   });
   $('viewerClose').addEventListener('click', function () { $('viewer').hidden = true; $('viewerFrame').srcdoc = ''; });
+  function openViewer(html) {
+    var fit = '<style>html{background:#fff}body{zoom:' + Math.min(1, (window.innerWidth - 24) / 680).toFixed(2) + ';padding:12px}</style>';
+    $('viewerFrame').srcdoc = html.replace('</head>', fit + '</head>');
+    $('viewer').hidden = false;
+  }
+
+  // ---------- ลาประเภทอื่น: กรอกใน LINE แล้วพิมพ์ใบลาไปเสนอแบบกระดาษ ----------
+  var otherForms = null, otherResult = null;
+  function openOther() {
+    show('other');
+    note($('oMsg'), '');
+    if (!$('oContact').value) $('oContact').value = defaults.contact || '';
+    if (!$('oPhone').value) $('oPhone').value = defaults.phone || '';
+    if (otherForms) return;
+    api('otherLeaveForms').then(function (r) {
+      otherForms = r.forms;
+      $('oType').innerHTML = '<option value="">เลือกประเภทการลา</option>' + r.forms.map(function (f) { return '<option value="' + f.id + '">' + esc(f.label) + '</option>'; }).join('');
+      $('oNotOnline').textContent = (r.notOnline || []).length ? 'ส่วน' + r.notOnline.join(' และ') + ' ต้องมีเอกสารประกอบเพิ่ม ให้ติดต่องานบุคคล' + (hrContact ? ' โทร ' + hrContact : '') : '';
+    }).catch(function (e) { note($('oMsg'), e.message); });
+  }
+  function otherSpec() { return (otherForms || []).filter(function (f) { return f.id === $('oType').value; })[0]; }
+  $('oType').addEventListener('change', function () {
+    var f = otherSpec(), box = $('oFields');
+    box.innerHTML = '';
+    note($('oMsg'), '');
+    if (!f) { note($('oInfo'), ''); return; }
+    var info = [];
+    if (f.maxDaysPerTime) info.push('ลาได้ไม่เกิน ' + f.maxDaysPerTime + (f.countMode === 'working' ? ' วันทำการ' : ' วัน') + 'ต่อครั้ง');
+    if (f.advanceDays) info.push('ต้องยื่นล่วงหน้าไม่น้อยกว่า ' + f.advanceDays + ' วัน');
+    if (f.countMode === 'calendar') info.push('นับวันต่อเนื่องรวมวันหยุด');
+    note($('oInfo'), info.join(' · '));
+    f.fields.forEach(function (fd) {
+      var lab = document.createElement('label');
+      lab.className = 'f'; lab.htmlFor = 'of_' + fd.key; lab.textContent = fd.label + (fd.required ? ' *' : '');
+      var el;
+      if (fd.kind === 'choice') {
+        el = document.createElement('select');
+        el.innerHTML = '<option value="">เลือก</option>' + fd.options.map(function (o) { return '<option>' + esc(o) + '</option>'; }).join('');
+      } else {
+        el = document.createElement('input');
+        el.type = fd.kind === 'date' ? 'date' : 'text';
+        el.maxLength = 200;
+        if (fd.placeholder) el.placeholder = fd.placeholder;
+      }
+      el.id = 'of_' + fd.key;
+      box.appendChild(lab); box.appendChild(el);
+    });
+  });
+  $('btnOther').addEventListener('click', function () {
+    var btn = this, f = otherSpec();
+    note($('oMsg'), '');
+    if (!f) { note($('oMsg'), 'เลือกประเภทการลา'); return; }
+    if (!$('oStart').value) { note($('oMsg'), 'เลือกวันเริ่มลา'); return; }
+    var fields = {};
+    f.fields.forEach(function (fd) { fields[fd.key] = $('of_' + fd.key).value; });
+    btn.disabled = true; btn.textContent = 'กำลังสร้างใบลา…';
+    api('otherLeaveForm', { form: f.id, start: $('oStart').value, end: $('oEnd').value || $('oStart').value, fields: fields, contact: $('oContact').value, phone: $('oPhone').value })
+      .then(function (r) {
+        otherResult = r;
+        $('odText').textContent = f.label + ' ' + r.days + (r.countMode === 'working' ? ' วันทำการ' : ' วัน') + (r.to ? ' · เรียน ' + r.to : '');
+        $('odWarn').innerHTML = (r.warnings || []).map(function (w) { return '<li class="w">' + esc(w) + '</li>'; }).join('');
+        $('odWarn').hidden = !(r.warnings || []).length;
+        show('otherDone');
+      })
+      .catch(function (e) { note($('oMsg'), e.message); })
+      .then(function () { btn.disabled = false; btn.textContent = 'สร้างใบลาสำหรับพิมพ์'; });
+  });
+  $('odView').addEventListener('click', function () { if (otherResult) openViewer(otherResult.html); });
+  $('odPrint').addEventListener('click', function () {
+    if (!otherResult) return;
+    var url = new URL('print.html?t=' + encodeURIComponent(otherResult.token), location.href).href;
+    // หน้าพิมพ์ต้องเปิดในเบราว์เซอร์ของเครื่อง (ในแอป LINE สั่งพิมพ์ไม่ได้)
+    if (window.liff && liff.isInClient && liff.isInClient()) liff.openWindow({ url: url, external: true });
+    else window.open(url, '_blank');
+  });
 
   // ข้อมูลสมมติสำหรับดูหน้าจอ (?preview=...) ไม่เรียกระบบจริง
   function demoApi(action) {
@@ -960,6 +1079,12 @@
       inbox: { items: [{ id: 'L2570-0013', applicant: 'นางสาวตัวอย่าง ใจดี', position: 'เจ้าพนักงานธุรการชำนาญงาน', unit: 'กองการเจ้าหน้าที่', type: 'personal', typeName: 'ลากิจส่วนตัว', start: '2026-11-05', end: '2026-11-06', days: 2, reason: 'ไปทำธุระที่อำเภอ', statsThisYear: { sick: 1, personal: 0, vacation: 3 }, history: [], myRole: 'approve', stepTitle: 'ผู้อำนวยการกองการเจ้าหน้าที่' },
         { id: 'L2570-0009', applicant: 'นายตัวอย่าง มีสุข', position: 'นักจัดการงานทั่วไป', unit: 'กองการเจ้าหน้าที่', type: 'vacation', typeName: 'ลาพักผ่อน', start: '2026-11-23', end: '2026-11-27', days: 5, statsThisYear: { sick: 0, personal: 1, vacation: 5 }, history: [{ title: 'ผู้อำนวยการกองการเจ้าหน้าที่', result: 'อนุญาต', who: 'นางตัวอย่าง ผู้อำนวยการ' }], myRole: 'cancel', stepTitle: 'ผู้อำนวยการกองการเจ้าหน้าที่', cancelFrom: '2026-11-26', cancelWhole: false, cancelReason: 'มีงานประชุมสภา' }] },
       leaveSubmit: { id: 'L2570-0014', days: 3, approver: 'ผู้อำนวยการกองการเจ้าหน้าที่', hrReview: false },
+      otherLeaveForms: { forms: [{ id: 'paternity', label: 'ลาไปช่วยเหลือภริยาที่คลอดบุตร', countMode: 'working', maxDaysPerTime: 15, advanceDays: 0,
+          fields: [{ key: 'wifeName', label: 'ชื่อภริยาโดยชอบด้วยกฎหมาย', kind: 'text', required: true }, { key: 'birthDate', label: 'วันที่ภริยาคลอดบุตร', kind: 'date', required: true }] },
+        { id: 'ordination', label: 'ลาอุปสมบท', countMode: 'calendar', maxDaysPerTime: 0, advanceDays: 60,
+          fields: [{ key: 'ever', label: 'เคยอุปสมบทหรือไม่', kind: 'choice', options: ['ยังไม่เคย', 'เคย'], required: true }, { key: 'temple', label: 'จะอุปสมบท ณ วัด', kind: 'text', required: true }] }],
+        notOnline: ['ลาไปฟื้นฟูสมรรถภาพด้านอาชีพ', 'ลาไปปฏิบัติงานในองค์การระหว่างประเทศ'] },
+      otherLeaveForm: { html: '<!doctype html><html><head></head><body style="font-family:sans-serif"><h3 style="text-align:center;text-decoration:underline">แบบใบลาอุปสมบท</h3><p>(ตัวอย่างหน้าจอ)</p></body></html>', token: 'demo', days: 90, countMode: 'calendar', to: 'นายกเทศมนตรีเมืองหนองบัวลำภู', warnings: ['ระเบียบกำหนดให้ยื่นล่วงหน้าไม่น้อยกว่า 60 วันก่อนวันลา (ข้อ 26–27) ผู้มีอำนาจอาจพิจารณาเป็นกรณีไป'] },
       decide: { result: 'อนุญาต' }, cancelLeave: {}, requestCancel: {}, leaveView: { html: '<!doctype html><html><head></head><body style="font-family:sans-serif"><h3 style="text-align:center;text-decoration:underline">แบบใบลาป่วย ลาคลอดบุตร ลากิจส่วนตัว</h3><p>(ตัวอย่างหน้าจอ)</p></body></html>' }, leaveDefaults: defaults
     };
     return Promise.resolve(D[action] || {});
@@ -983,6 +1108,7 @@
     if (pv === 'form') openForm();
     if (pv === 'mine') openMine();
     if (pv === 'inbox') openInbox();
+    if (pv === 'other') openOther();
     return;
   }
 

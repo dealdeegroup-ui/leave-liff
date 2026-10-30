@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>พิมพ์ใบลา</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 32px 16px; color: #3c2832; background: #fdfafb; text-align: center; }
+  .box { max-width: 420px; margin: 0 auto; }
+  .bad { color: #a32d2d; }
+</style>
+</head>
+<body>
+<div class="box" id="status">กำลังเตรียมใบลา…</div>
+<script src="config.js?v=12"></script>
+<script>
+// หน้าพิมพ์ใบลาประเภทอื่น: เปิดนอกแอป LINE ด้วยรหัสลับที่ได้ตอนสร้างใบลา (ใช้ได้ 6 ชั่วโมง)
+(function () {
+  var token = new URLSearchParams(location.search).get('t') || '';
+  var status = document.getElementById('status');
+  function fail(t) { status.innerHTML = '<p class="bad">' + t + '</p><p>กลับไปที่ระบบการลาใน LINE แล้วสร้างใบลาใหม่</p>'; }
+  if (!token) return fail('ลิงก์ไม่ถูกต้อง');
+  fetch(window.LEAVE_CONFIG.apiUrl, { method: 'POST', body: JSON.stringify({ action: 'formByToken', token: token }) })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (!res.ok) return fail(res.error || 'เปิดใบลาไม่ได้');
+      var bar = '<style>@media print{.pbar{display:none!important}} .pbar{position:sticky;top:0;z-index:9;background:#fbecf3;border-bottom:1px solid #e6d3a3;padding:10px 12px;' +
+        'font-family:system-ui,sans-serif;display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:14px;color:#7a164a}' +
+        '.pbar button{border:0;border-radius:10px;background:#b3266e;color:#fff;font:inherit;font-weight:600;padding:9px 14px}</style>' +
+        '<div class="pbar"><span>พิมพ์ หรือเลือก "บันทึกเป็น PDF"</span><button onclick="window.print()">พิมพ์ใบลา</button></div>';
+      document.open();
+      document.write(res.html.replace(/<body([^>]*)>/, '<body$1>' + bar));
+      document.close();
+    })
+    .catch(function () { fail('เชื่อมต่อระบบไม่ได้ ลองใหม่อีกครั้ง'); });
+})();
+</script>
+</body>
+</html>
